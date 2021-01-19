@@ -8,10 +8,9 @@
 
 (defun set-rnd-state (i)
   (declare (fixnum i))
-  (if (or #+SBCL t nil)
-      (setf *random-state* (sb-ext:seed-random-state i))
-      (warn "rnd:state is only implemented for SBCL. see src/rnd.lisp
-             to implement state for your environment.")))
+  #+sbcl (setf *random-state* (sb-ext:seed-random-state i))
+  #-sbcl (warn "rnd:state is only implemented for SBCL. see src/rnd.lisp
+             to implement state for your environment."))
 
 
 (defun make-rnd-state ()
@@ -28,7 +27,8 @@
 (declaim (inline nrndi))
 (defun nrndi (n a)
   (declare (fixnum n a))
-  (loop repeat n collect (rndi a) of-type fixnum))
+  #+sbcl (loop repeat n collect (rndi a) of-type fixnum)
+  #-sbcl (loop repeat n collect (rndi a)))
 
 
 (declaim (inline rndrngi))
@@ -41,7 +41,8 @@
   (declare (fixnum n a b))
   (let ((d (- b a)))
     (declare (fixnum d))
-    (loop repeat n collect (+ a (rndi d)) of-type fixnum)))
+    #+sbcl (loop repeat n collect (+ a (rndi d)) of-type fixnum)
+    #-sbcl (loop repeat n collect (+ a (rndi d)))))
 
 
 (declaim (inline rnd))
@@ -52,7 +53,8 @@
 (declaim (inline nrnd))
 (defun nrnd (n &optional (x 1d0))
   (declare #.*opt-settings* (fixnum n) (double-float x))
-  (loop repeat n collect (rnd x) of-type double-float))
+  #+sbcl (loop repeat n collect (rnd x) of-type double-float)
+  #-sbcl (loop repeat n collect (rnd x)))
 
 
 (declaim (inline rnd*))
@@ -63,7 +65,8 @@
 (declaim (inline nrnd*))
 (defun nrnd* (n &optional (x 1d0))
   (declare #.*opt-settings* (fixnum n) (double-float x))
-  (loop repeat n collect (rnd* x) of-type double-float))
+  #+sbcl (loop repeat n collect (rnd* x) of-type double-float)
+  #-sbcl (loop repeat n collect (rnd* x)))
 
 
 (declaim (inline rndrng))
@@ -74,7 +77,8 @@
 (declaim (inline nrndrng))
 (defun nrndrng (n a b)
   (declare #.*opt-settings* (fixnum n) (double-float a b))
-  (loop repeat n collect (rndrng a b) of-type double-float))
+  #+sbcl (loop repeat n collect (rndrng a b) of-type double-float)
+  #-sbcl (loop repeat n collect (rndrng a b)))
 
 
 ; https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
@@ -185,5 +189,6 @@
 (declaim (inline bernoulli))
 (defun bernoulli (n p)
   (declare #.*opt-settings* (fixnum n) (double-float p))
-  (loop repeat n collect (prob p 1d0 0d0) of-type double-float))
+  #+sbcl (loop repeat n collect (prob p 1d0 0d0) of-type double-float)
+  #-sbcl (loop repeat n collect (prob p 1d0 0d0)))
 

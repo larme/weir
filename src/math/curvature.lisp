@@ -109,22 +109,25 @@
 
 ; TODO: closed
 (defun offset-paths (pts &key (rs 0.1d0) (curvefx #'-curvefx)
-                                         (spacefx #'-spacefx))
+                           (spacefx #'-spacefx))
   "
   offset pts according to curvature.
   pts must be evenly sampled for this to work properly.
   experimental.
   "
   (declare #.*opt-settings* (vec-simple pts) (pos-double rs)
-                            (function curvefx spacefx))
+           (function curvefx spacefx))
   (loop with res of-type list = (list)
         for offset of-type list in (-split-num (offsets pts) rs curvefx)
         do (loop with n of-type pos-int = (caar offset)
                  for s of-type pos-double in (funcall spacefx n)
                  do (push
-                      (list n (loop for (_ c a b) in offset
-                                    collect (vec:on-line s a (vec:from a b c))
-                                      of-type vec:vec))
-                      res))
+                     (list n
+			   #+sbcl (loop for (_ c a b) in offset
+					collect (vec:on-line s a (vec:from a b c))
+					  of-type vec:vec)
+			   #-sbcl (loop for (_ c a b) in offset
+					collect (vec:on-line s a (vec:from a b c))))
+                     res))
         finally (return res)))
 

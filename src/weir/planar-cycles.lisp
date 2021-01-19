@@ -132,17 +132,19 @@
     (let ((grph (graph:copy (grp-grph g*))))
       (graph:del-simple-filaments grph)
       (labels
-        ((vertfx (v) (get-vert wer v))
-         (dirfx (a b) (apply #'vec:sub (weir:get-verts wer (list a b))))
-         (adjfx (c p) (remove-if (lambda (i) (= i p))
-                                 (graph::-only-incident-verts c
-                                   (graph:get-incident-edges grph c)))))
+          ((vertfx (v) (get-vert wer v))
+           (dirfx (a b) (apply #'vec:sub (weir:get-verts wer (list a b))))
+           (adjfx (c p) (remove-if (lambda (i) (= i p))
+                                   (graph::-only-incident-verts c
+								(graph:get-incident-edges grph c)))))
 
         (loop while (> (graph:get-num-edges grph) 0)
               do (let ((cycle (-do-walk-cycle grph :dirfx #'dirfx
-                                :adjfx #'adjfx :vertfx #'vertfx)))
+						   :adjfx #'adjfx :vertfx #'vertfx)))
                    (when cycle (push cycle res)))))))
 
-  (if cycle-info (loop for c in res collect (graph::-cycle-info c) of-type list)
-                 res))
+  (if cycle-info
+      #+sbcl (loop for c in res collect (graph::-cycle-info c) of-type list)
+      #-sbcl (loop for c in res collect (graph::-cycle-info c))
+      res))
 

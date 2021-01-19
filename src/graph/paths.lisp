@@ -69,41 +69,43 @@
         (visited (make-hash-table :test #'equal)))
 
     (labels
-      ((-incident-not-two (incident)
-         (declare (list incident))
-         (not (= (length incident) 2)))
-
-       (-incident-two (incident)
-         (declare (list incident))
-         (= (length incident) 2))
-
-       (-do-find-continous (v next)
-         (declare (pos-int v next))
-         (let* ((path (to-list (-find-continous grph v next)))
-                (key (sort (copy-list path) #'<)))
-           (declare (list path key))
-           (unless (gethash key all-paths)
-                   (-add-visited-verts visited path)
-                   (setf (gethash key all-paths) path))))
-
-       (-walk-incident-verts (v testfx)
-         (declare (pos-int v) (function testfx))
-         (let ((incident (get-incident-edges grph v)))
+	((-incident-not-two (incident)
            (declare (list incident))
-           (when (funcall testfx incident)
-                 (loop for next in (-only-incident-verts v incident)
-                       do (-do-find-continous v next))))))
+           (not (= (length incident) 2)))
+
+	 (-incident-two (incident)
+           (declare (list incident))
+           (= (length incident) 2))
+
+	 (-do-find-continous (v next)
+           (declare (pos-int v next))
+           (let* ((path (to-list (-find-continous grph v next)))
+                  (key (sort (copy-list path) #'<)))
+             (declare (list path key))
+             (unless (gethash key all-paths)
+               (-add-visited-verts visited path)
+               (setf (gethash key all-paths) path))))
+
+	 (-walk-incident-verts (v testfx)
+           (declare (pos-int v) (function testfx))
+           (let ((incident (get-incident-edges grph v)))
+             (declare (list incident))
+             (when (funcall testfx incident)
+               (loop for next in (-only-incident-verts v incident)
+                     do (-do-find-continous v next))))))
 
       (loop for v in (sort (get-verts grph) #'<)
             do (-walk-incident-verts v #'-incident-not-two))
 
-      ; note: this can be improved if we inverted visited, and remove vertices
-      ; as they are visited
+					; note: this can be improved if we inverted visited, and remove vertices
+					; as they are visited
       (loop for v in (sort (get-verts grph) #'<)
             do (when (not (gethash v visited))
-                     (-walk-incident-verts v #'-incident-two))))
+                 (-walk-incident-verts v #'-incident-two))))
 
-    (loop for k of-type list being the hash-values of all-paths
-          if cycle-info collect (-cycle-info k) of-type list
-          else collect k of-type list)))
+    #+sbcl (loop for k of-type list being the hash-values of all-paths
+		 if cycle-info collect (-cycle-info k) of-type list
+		   else collect k of-type list)
+    #-sbcl (loop for k of-type list being the hash-values of all-paths
+		 if cycle-info collect (-cycle-info k) else collect k)))
 

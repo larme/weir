@@ -71,10 +71,13 @@
 (defun linspace (n a b &key (end t))
   (declare #.*opt-settings* (pos-int n) (double-float a b) (boolean end))
   (if (> n 1)
-    (loop with ban of-type double-float = (/ (- b a) (if end (1- n) n))
-          for i of-type fixnum from 0 below n
-          collect (+ a (* (coerce i 'double-float) ban)) of-type double-float)
-    (list a)))
+      #+sbcl (loop with ban of-type double-float = (/ (- b a) (if end (1- n) n))
+		   for i of-type fixnum from 0 below n
+		   collect (+ a (* (coerce i 'double-float) ban)) of-type double-float)
+      #-sbcl (loop with ban of-type double-float = (/ (- b a) (if end (1- n) n))
+		   for i of-type fixnum from 0 below n
+		   collect (+ a (* (coerce i 'double-float) ban)))
+      (list a)))
 
 
 (declaim (inline lerp))
@@ -93,9 +96,11 @@
 (defmacro lop (name type &body body)
   `(defun ,name (aa bb)
      (declare #.*opt-settings* (list aa bb))
-     (loop for a of-type ,type in aa and b of-type ,type in bb
-           collect (the ,type (,@body (the ,type a) (the ,type b)))
-             of-type ,type)))
+     #+sbcl (loop for a of-type ,type in aa and b of-type ,type in bb
+		  collect (the ,type (,@body (the ,type a) (the ,type b)))
+		    of-type ,type)
+     #-sbcl (loop for a of-type ,type in aa and b of-type ,type in bb
+		  collect (the ,type (,@body (the ,type a) (the ,type b))))))
 
 
 (declaim (inline add sub mult dadd dsub dmult ddiv))

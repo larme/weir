@@ -76,8 +76,10 @@
   (with-struct (weir- verts num-verts) wer
     (declare (type (simple-array double-float) verts)
              (pos-int num-verts))
-    (loop for v of-type pos-int from 0 below num-verts
-          collect (avec:3getv verts v) of-type vec:3vec)))
+    #+sbcl (loop for v of-type pos-int from 0 below num-verts
+		 collect (avec:3getv verts v) of-type vec:3vec)
+    #-sbcl (loop for v of-type pos-int from 0 below num-verts
+		 collect (avec:3getv verts v))))
 
 
 (defun 3make-vert-getter (wer)
