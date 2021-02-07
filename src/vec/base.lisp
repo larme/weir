@@ -187,7 +187,7 @@
 (declaim (inline -expt))
 (defun -expt (a b)
   (declare #.*opt-settings* (double-float a b))
-  (expt (the pos-double a) b))
+  (math:rexpt (the pos-double a) b))
 
 
 (declaim (inline add sub mult div isub

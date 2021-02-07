@@ -104,7 +104,7 @@
 (declaim (inline -scale-convert))
 (defun -scale-convert (v &key (s 1d0) (gamma 1d0))
   (declare (double-float s gamma))
-  (setf v (expt (the pos-double (max 0d0 (/ v s))) gamma)))
+  (setf v (math:rexpt (the pos-double (max 0d0 (/ v s))) gamma)))
 
 
 (declaim (inline -operator-over))

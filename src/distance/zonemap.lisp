@@ -42,7 +42,7 @@
 (defmacro with-verts-in-rad ((zm verts xy rad v) &body body)
   (alexandria:with-gensyms (rad2 zm* zwidth zone-to-verts xy* za zai zb
 				 vals verts* exists i j xx yy)
-    `(let* ((,rad2 (expt ,rad 2))
+    `(let* ((,rad2 (math:rexpt ,rad 2d0))
             (,verts* ,verts)
             (,xy* ,xy)
             (,xx (vec:vec-x ,xy*))
@@ -62,10 +62,10 @@
 		       (gethash (list ,zai (+ ,j ,zb)) ,zone-to-verts)
 		     (when ,exists
                        (loop for ,v of-type int across ,vals
-			     if (< (+ (expt (- ,xx (aref ,verts*
-							 (the int (* 2 ,v)))) 2)
-				      (expt (- ,yy (aref ,verts*
-							 (the int (1+ (* 2 ,v))))) 2))
+			     if (< (+ (math:rexpt (- ,xx (aref ,verts*
+							       (the int (* 2 ,v)))) 2d0)
+				      (math:rexpt (- ,yy (aref ,verts*
+							       (the int (1+ (* 2 ,v))))) 2d0))
 				   ,rad2)
 			       do (progn ,@body))))))))))
 

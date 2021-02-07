@@ -190,7 +190,7 @@
 (declaim (inline len2))
 (defun len2 (a)
   (declare #.*opt-settings* (vec a))
-  (+ (expt (vec-x a) 2) (expt (vec-y a) 2)))
+  (+ (math:rexpt (vec-x a) 2d0) (math:rexpt (vec-y a) 2d0)))
 
 (declaim (inline len))
 (defun len (a)
@@ -216,7 +216,7 @@
 (declaim (inline dst2))
 (defun dst2 (a b)
   (declare #.*opt-settings* (vec a b))
-  (+ (expt (- (vec-x a) (vec-x b)) 2) (expt (- (vec-y a) (vec-y b)) 2)))
+  (+ (math:rexpt (- (vec-x a) (vec-x b)) 2d0) (math:rexpt (- (vec-y a) (vec-y b)) 2d0)))
 
 
 (declaim (inline dst))
