@@ -41,8 +41,8 @@
 
 (defmacro with-verts-in-rad ((zm verts xy rad v) &body body)
   (alexandria:with-gensyms (rad2 zm* zwidth zone-to-verts xy* za zai zb
-                 vals verts* exists i j xx yy)
-    `(let* ((,rad2 (expt ,rad 2d0))
+				 vals verts* exists i j xx yy)
+    `(let* ((,rad2 (math:rexpt ,rad 2d0))
             (,verts* ,verts)
             (,xy* ,xy)
             (,xx (vec:vec-x ,xy*))
@@ -50,24 +50,24 @@
             (,zm* ,zm)
             (,zwidth (zonemap-zwidth ,zm*))
             (,zone-to-verts (zonemap-zone-to-verts ,zm*)))
-      (declare (double-float ,rad2 ,zwidth ,xx ,yy)
-               (type (simple-array double-float) ,verts*)
-               (hash-table ,zone-to-verts) (vec:vec ,xy*))
-      (multiple-value-bind (,za ,zb) (-xy-to-zone ,zwidth ,xx ,yy)
-        (declare (type int ,za ,zb))
-        (loop for ,i of-type int from -1 below 2 do
-          (loop with ,zai of-type int = (+ ,za ,i)
-                for ,j of-type int from -1 below 2 do
-            (multiple-value-bind (,vals ,exists)
-              (gethash (list ,zai (+ ,j ,zb)) ,zone-to-verts)
-              (when ,exists
-                (loop for ,v of-type int across ,vals
-                      if (< (+ (expt (- ,xx (aref ,verts*
-                                                  (the int (* 2 ,v)))) 2d0)
-                               (expt (- ,yy (aref ,verts*
-                                                  (the int (1+ (* 2 ,v))))) 2d0))
-                            ,rad2)
-                      do (progn ,@body))))))))))
+       (declare (double-float ,rad2 ,zwidth ,xx ,yy)
+		(type (simple-array double-float) ,verts*)
+		(hash-table ,zone-to-verts) (vec:vec ,xy*))
+       (multiple-value-bind (,za ,zb) (-xy-to-zone ,zwidth ,xx ,yy)
+         (declare (type int ,za ,zb))
+         (loop for ,i of-type int from -1 below 2 do
+           (loop with ,zai of-type int = (+ ,za ,i)
+                 for ,j of-type int from -1 below 2 do
+		   (multiple-value-bind (,vals ,exists)
+		       (gethash (list ,zai (+ ,j ,zb)) ,zone-to-verts)
+		     (when ,exists
+                       (loop for ,v of-type int across ,vals
+			     if (< (+ (math:rexpt (- ,xx (aref ,verts*
+							       (the int (* 2 ,v)))) 2d0)
+				      (math:rexpt (- ,yy (aref ,verts*
+							       (the int (1+ (* 2 ,v))))) 2d0))
+				   ,rad2)
+			       do (progn ,@body))))))))))
 
 (declaim (inline verts-in-rad))
 (defun verts-in-rad (zm verts xy rad)

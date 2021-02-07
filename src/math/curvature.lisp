@@ -19,7 +19,7 @@
   "
   (declare #.*opt-settings* (vec-simple pts) (pos-int i))
   (let* ((s (/ 2d0 (coerce (1- n) 'double-float)))
-         (s2 (expt s 2d0))
+         (s2 (rexpt s 2d0))
          (p (aref pts i))
          (p- (aref pts (1- i)))
          (p+ (aref pts (1+ i))))
@@ -37,8 +37,8 @@
   (multiple-value-bind (dx dy ddx ddy) (ddxy pts i)
     (declare (double-float dx dy ddx ddy))
     (/ (abs (- (* dx ddy) (* dy ddx)))
-       (expt (the pos-double (+ (* dx dx) (* dy dy)))
-             #.(/ 3d0 2d0)))))
+       (rexpt (the pos-double (+ (* dx dx) (* dy dy)))
+              #.(/ 3d0 2d0)))))
 
 
 (declaim (inline -coffset))
@@ -100,7 +100,7 @@
 (declaim (inline -curvefx))
 (defun -curvefx (c)
   (declare (pos-double c))
-  (* 500d0 (expt c 0.6d0)))
+  (* 500d0 (rexpt c 0.6d0)))
 
 (declaim (inline -spacefx))
 (defun -spacefx (n)

@@ -58,9 +58,9 @@
 (declaim (inline non-a-gamma!))
 (defun non-a-gamma! (v gamma)
   (declare #.*opt-settings* (rgba v) (double-float gamma))
-  (setf (rgba-r v) (expt (rgba-r v) gamma)
-        (rgba-g v) (expt (rgba-g v) gamma)
-        (rgba-b v) (expt (rgba-b v) gamma))
+  (setf (rgba-r v) (math:rexpt (rgba-r v) gamma)
+        (rgba-g v) (math:rexpt (rgba-g v) gamma)
+        (rgba-b v) (math:rexpt (rgba-b v) gamma))
   v)
 
 (declaim (inline non-a-add))

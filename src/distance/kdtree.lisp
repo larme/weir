@@ -123,9 +123,9 @@
   (declare #.*opt-settings*
            (type (simple-array double-float) verts) (pos-int i)
            (double-float x y z))
-  (+ (expt (- (the double-float (aref verts i)) x) 2d0)
-     (expt (- (the double-float (aref verts (+ 1 i))) y) 2d0)
-     (expt (- (the double-float (aref verts (+ 2 i))) z) 2d0)))
+  (+ (math:rexpt (- (the double-float (aref verts i)) x) 2d0)
+     (math:rexpt (- (the double-float (aref verts (+ 1 i))) y) 2d0)
+     (math:rexpt (- (the double-float (aref verts (+ 2 i))) z) 2d0)))
 
 
 (declaim (inline -make-nn-res nn-res-m nn-res-d))
@@ -143,11 +143,11 @@
     (declare (pos-int m ax))
     (let* ((ptaxv (case ax (0 x) (1 y) (t z)))
            (nodeaxv (aref verts (+ m ax)))
-           (axdst (expt (- ptaxv nodeaxv) 2d0))
+           (axdst (math:rexpt (- ptaxv nodeaxv) 2d0))
            (dst (-dst2 verts m x y z)))
       (declare (pos-int ax) (double-float axdst dst nodeaxv ptaxv))
       (when (< dst (nn-res-d best))
-            (setf (nn-res-m best) (node-m nod) (nn-res-d best) dst))
+        (setf (nn-res-m best) (node-m nod) (nn-res-d best) dst))
       (if (> (nn-res-d best) axdst)
           (progn (-nn verts r x y z :best best)
                  (-nn verts l x y z :best best))
@@ -177,7 +177,7 @@
     (declare (pos-int m ax))
     (let* ((ptaxv (case ax (0 x) (1 y) (t z)))
            (nodeaxv (aref verts (+ m ax)))
-           (axdst (expt (- ptaxv nodeaxv) 2d0))
+           (axdst (math:rexpt (- ptaxv nodeaxv) 2d0))
            (dst (-dst2 verts m x y z)))
       (declare (pos-int ax) (double-float axdst dst nodeaxv ptaxv))
       (when (< dst rad2) (vextend (/ m 3) res))
@@ -195,6 +195,6 @@
            (y (vec:3vec-y xy))
            (z (vec:3vec-z xy))
            (res (make-adjustable-vector :type 'pos-int)))
-      (-rad verts root x y z (expt rad 2d0) :res res)
+      (-rad verts root x y z (math:rexpt rad 2d0) :res res)
       res)))
 

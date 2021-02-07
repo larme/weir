@@ -130,9 +130,9 @@
 (declaim (inline 3len2))
 (defun 3len2 (a)
   (declare #.*opt-settings* (3vec a))
-  (+ (expt (3vec-x a) 2d0)
-     (expt (3vec-y a) 2d0)
-     (expt (3vec-z a) 2d0)))
+  (+ (math:rexpt (3vec-x a) 2d0)
+     (math:rexpt (3vec-y a) 2d0)
+     (math:rexpt (3vec-z a) 2d0)))
 
 (declaim (inline 3len))
 (defun 3len (a)
@@ -159,9 +159,9 @@
 (declaim (inline 3dst2))
 (defun 3dst2 (a b)
   (declare #.*opt-settings* (3vec a b))
-  (+ (expt (- (3vec-x a) (3vec-x b)) 2d0)
-     (expt (- (3vec-y a) (3vec-y b)) 2d0)
-     (expt (- (3vec-z a) (3vec-z b)) 2d0)))
+  (+ (math:rexpt (- (3vec-x a) (3vec-x b)) 2d0)
+     (math:rexpt (- (3vec-y a) (3vec-y b)) 2d0)
+     (math:rexpt (- (3vec-z a) (3vec-z b)) 2d0)))
 
 (declaim (inline 3dst))
 (defun 3dst (a b)
@@ -360,14 +360,14 @@
 (defun -3spherex (r oc l llen)
   (declare #.*opt-settings* (3vec oc l) (double-float r llen))
   (let* ((ldotoc (3dot l oc))
-         (s (- (expt ldotoc 2d0) (- (3len2 oc) (* r r)))))
-      (declare (double-float ldotoc s))
+         (s (- (math:rexpt ldotoc 2d0) (- (3len2 oc) (* r r)))))
+    (declare (double-float ldotoc s))
 
-      (when (< s 0d0) (return-from -3spherex (values nil nil)))
-      (when (> s 0d0) (return-from -3spherex
-                        (values t (list (/ (- s ldotoc) llen)
-                                        (/ (- (- ldotoc) s) llen)))))
-      (values t (list (/ (- ldotoc) llen)))))
+    (when (< s 0d0) (return-from -3spherex (values nil nil)))
+    (when (> s 0d0) (return-from -3spherex
+                      (values t (list (/ (- s ldotoc) llen)
+                                      (/ (- (- ldotoc) s) llen)))))
+    (values t (list (/ (- ldotoc) llen)))))
 
 (declaim (inline 3spherex))
 (defun 3spherex (c r line)
