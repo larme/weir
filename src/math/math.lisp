@@ -176,7 +176,7 @@
 (defun ddst (aa bb)
   (declare #.*opt-settings* (list aa bb))
   (sqrt (the double-float (loop for a in aa and b in bb
-                                sum (expt (the double-float (- a b)) 2d0)
+                                sum (expt (the double-float (- a b)) 2)
                                   of-type double-float ))))
 
 (declaim (inline dsum))

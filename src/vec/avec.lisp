@@ -20,9 +20,9 @@
         (vv (* 2 v)))
     (declare (pos-int uu vv))
     (+ (expt (- (the double-float (aref a uu))
-                (the double-float (aref b vv))) 2d0)
+                (the double-float (aref b vv))) 2)
        (expt (- (the double-float (aref a (1+ (the pos-int uu))))
-                (the double-float (aref b (1+ (the pos-int vv))))) 2d0))))
+                (the double-float (aref b (1+ (the pos-int vv))))) 2))))
 
 (declaim (inline dst))
 (defun dst (a b u v)

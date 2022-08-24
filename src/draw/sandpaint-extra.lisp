@@ -71,23 +71,23 @@
 (defun cafx-lin (mid s)
   (lambda (xy) (vec:smult (vec:sub xy mid) (/ s))))
 
-(defun chromatic-aberration (sand &key (cafx (cafx-expt (vec:rep 1000d0) 1000d0 2d0)))
+(defun chromatic-aberration (sand &key (cafx (cafx-expt (vec:rep 1000d0) 1000d0 2)))
   (declare (sandpaint sand) (function cafx))
   (with-struct (sandpaint- size vals indfx) sand
     (declare (pos-int size) (function indfx))
     (let ((new-vals (make-rgba-array size)))
       (copy-rgba-array-to-from new-vals vals size)
       (labels ((-offset-channel (xi yi channel val)
-                (setf (aref new-vals (funcall indfx xi yi channel)) val)))
+                 (setf (aref new-vals (funcall indfx xi yi channel)) val)))
 
         (-square-loop (x y size)
           (let* ((xy (vec:vec (coerce x 'double-float) (coerce y 'double-float)))
                  (dx (funcall cafx xy)))
             (declare (vec:vec xy dx))
             (-offset-channel x y 0
-              (pigment::rgba-r (sample-bilin sand (vec:sub xy dx))))
+			     (pigment::rgba-r (sample-bilin sand (vec:sub xy dx))))
             (-offset-channel x y 2
-              (pigment::rgba-b (sample-bilin sand (vec:add xy dx)))))))
+			     (pigment::rgba-b (sample-bilin sand (vec:add xy dx)))))))
 
       (copy-rgba-array-to-from vals new-vals size))))
 

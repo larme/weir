@@ -19,7 +19,7 @@
   "
   (declare #.*opt-settings* (vec-simple pts) (pos-int i))
   (let* ((s (/ 2d0 (coerce (1- n) 'double-float)))
-         (s2 (expt s 2d0))
+         (s2 (expt s 2))
          (p (aref pts i))
          (p- (aref pts (1- i)))
          (p+ (aref pts (1+ i))))

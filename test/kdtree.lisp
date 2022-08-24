@@ -10,7 +10,7 @@
         finally (return hit)))
 
 (defun -rad (verts cand rad)
-  (loop with rad2 = (expt rad 2d0)
+  (loop with rad2 = (expt rad 2)
         with res = (make-adjustable-vector :type 'fixnum)
         for v in verts
         for i from 0

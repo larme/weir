@@ -43,7 +43,7 @@
 
 
 (defun get-width (d)
-  (* 4d0 (expt (- 1d0 (max 0d0 (min (/ d 1500d0) 1d0))) 2d0)))
+  (* 4d0 (expt (- 1d0 (max 0d0 (min (/ d 1500d0) 1d0))) 2)))
 
 
 (defun dst-draw (wer proj psvg)
