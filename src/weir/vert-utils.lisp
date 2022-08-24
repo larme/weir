@@ -84,8 +84,10 @@
   (-dimtest wer)
   (with-struct (weir- verts num-verts) wer
     (declare (double-array verts) (pos-int num-verts))
-    (loop for v of-type pos-int from 0 below num-verts
-          collect (avec:getv verts v) of-type vec:vec)))
+    #+sbcl (loop for v of-type pos-int from 0 below num-verts
+		 collect (avec:getv verts v) of-type vec:vec)
+    #-sbcl (loop for v of-type pos-int from 0 below num-verts
+		 collect (avec:getv verts v))))
 
 
 (defun make-vert-getter (wer)

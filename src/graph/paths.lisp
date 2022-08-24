@@ -65,43 +65,46 @@
         (visited (make-hash-table :test #'equal)))
 
     (labels
-      ((-incident-not-two (incident)
-         (declare (list incident))
-         (not (= (length incident) 2)))
+     ((-incident-not-two (incident)
+			 (declare (list incident))
+			 (not (= (length incident) 2)))
 
-       (-incident-two (incident)
-         (declare (list incident))
-         (= (length incident) 2))
+      (-incident-two (incident)
+		     (declare (list incident))
+		     (= (length incident) 2))
 
-       (-do-find-segment (v next)
-         (declare (pos-int v next))
-         (let* ((path (to-list (-find-segment grph v next)))
-                (key (sort (copy-list path) #'<)))
-           (declare (list path key))
-           (unless (gethash key all-paths)
-                   (-add-visited-verts visited path)
-                   (setf (gethash key all-paths) path))))
+      (-do-find-segment (v next)
+			(declare (pos-int v next))
+			(let* ((path (to-list (-find-segment grph v next)))
+			       (key (sort (copy-list path) #'<)))
+			  (declare (list path key))
+			  (unless (gethash key all-paths)
+			    (-add-visited-verts visited path)
+			    (setf (gethash key all-paths) path))))
 
-       (-walk-incident-verts (v testfx)
-         (declare (pos-int v) (function testfx))
-         (let ((incident (get-incident-edges grph v)))
-           (declare (list incident))
-           (when (funcall testfx incident)
-                 (loop for next in (-only-incident-verts v incident)
-                       do (-do-find-segment v next))))))
+      (-walk-incident-verts (v testfx)
+			    (declare (pos-int v) (function testfx))
+			    (let ((incident (get-incident-edges grph v)))
+			      (declare (list incident))
+			      (when (funcall testfx incident)
+				(loop for next in (-only-incident-verts v incident)
+				      do (-do-find-segment v next))))))
 
-      (loop for v in (sort (get-verts grph) #'<)
-            do (-walk-incident-verts v #'-incident-not-two))
+     (loop for v in (sort (get-verts grph) #'<)
+           do (-walk-incident-verts v #'-incident-not-two))
 
-      ; note: this can be improved if we inverted visited, and remove vertices
-      ; as they are visited
-      (loop for v in (sort (get-verts grph) #'<)
-            unless (gethash v visited)
-            do (-walk-incident-verts v #'-incident-two)))
+					; note: this can be improved if we inverted visited, and remove vertices
+					; as they are visited
+     (loop for v in (sort (get-verts grph) #'<)
+           unless (gethash v visited)
+           do (-walk-incident-verts v #'-incident-two)))
 
-    (loop with fx = (if cycle-info #'-cycle-info #'identity)
-          for k of-type list being the hash-values of all-paths
-          collect (funcall fx k) of-type list)))
+    #+sbcl (loop with fx = (if cycle-info #'-cycle-info #'identity)
+		 for k of-type list being the hash-values of all-paths
+		 collect (funcall fx k) of-type list)
+    #-sbcl (loop with fx = (if cycle-info #'-cycle-info #'identity)
+		 for k of-type list being the hash-values of all-paths
+		 collect (funcall fx k))))
 
 (defun -angle-fx (a b c)
   (declare (ignore a b c))
@@ -115,43 +118,43 @@
                          do (setf (gethash e res) t)
                          finally (return res))))
     (labels
-      ((-ic (a b) (if (< a b) (list a b) (list b a)))
-       (-get-start-edge ()
-         (loop for e being the hash-keys of all-edges
-               do (return-from -get-start-edge e)))
+     ((-ic (a b) (if (< a b) (list a b) (list b a)))
+      (-get-start-edge ()
+		       (loop for e being the hash-keys of all-edges
+			     do (return-from -get-start-edge e)))
 
-       (-least-angle (a b vv)
-         (cadar (sort
-                  (mapcar (lambda (v)
-                            (list (weir-utils:aif
-                                    (funcall angle a b v)
-                                    weir-utils::it 0d0)
-                                  v))
-                          vv)
-                  #'> :key #'car)))
+      (-least-angle (a b vv)
+		    (cadar (sort
+			    (mapcar (lambda (v)
+				      (list (weir-utils:aif
+					     (funcall angle a b v)
+					     weir-utils::it 0d0)
+					    v))
+				    vv)
+			    #'> :key #'car)))
 
-       (-next-vert-from (a &key but-not)
-         (-least-angle but-not a (remove-if
-                (lambda (v) (or (= v but-not)
-                                (not (gethash (-ic a v) all-edges))))
-                (get-incident-verts grph a))))
+      (-next-vert-from (a &key but-not)
+		       (-least-angle but-not a (remove-if
+						(lambda (v) (or (= v but-not)
+								(not (gethash (-ic a v) all-edges))))
+						(get-incident-verts grph a))))
 
-       (-until-dead-end (a but-not)
-         (loop with prv = a
-               with res = (list prv)
-               with nxt = (-next-vert-from a :but-not but-not)
-               until (equal nxt nil)
-               do (push nxt res)
-                  (remhash (-ic prv nxt) all-edges)
-                  (let ((nxt* (-next-vert-from nxt :but-not prv)))
-                    (setf prv nxt nxt nxt*))
-               finally (return res))))
+      (-until-dead-end (a but-not)
+		       (loop with prv = a
+			     with res = (list prv)
+			     with nxt = (-next-vert-from a :but-not but-not)
+			     until (equal nxt nil)
+			     do (push nxt res)
+			     (remhash (-ic prv nxt) all-edges)
+			     (let ((nxt* (-next-vert-from nxt :but-not prv)))
+			       (setf prv nxt nxt nxt*))
+			     finally (return res))))
 
-      (loop while (> (hash-table-count all-edges) 0)
-            collect (let ((start (-get-start-edge)))
-                      (remhash start all-edges)
-                      (destructuring-bind (a b) start
-                        (concatenate 'list
-                          (-until-dead-end a b)
-                          (reverse (-until-dead-end b a)))))))))
+     (loop while (> (hash-table-count all-edges) 0)
+           collect (let ((start (-get-start-edge)))
+                     (remhash start all-edges)
+                     (destructuring-bind (a b) start
+					 (concatenate 'list
+						      (-until-dead-end a b)
+						      (reverse (-until-dead-end b a)))))))))
 

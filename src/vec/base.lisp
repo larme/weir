@@ -81,19 +81,21 @@
 
 
 (defmacro broadcast-vec-op ((name &key itr-type res-type arg-types inplace)
-                                  &body fx)
+                            &body fx)
   (let* ((pairs (loop for type in arg-types
                       collect (list type (gensym "broadcast-vec-op-arg"))))
          (args (loop for (_ a) in pairs collect a)))
     (alexandria:with-gensyms (aa a)
       `(defun ,name (,aa ,@args)
-        (declare #.*opt-settings* (list ,aa) ,@pairs)
-        ,(if inplace
-             `(loop for ,a of-type ,itr-type in ,aa
-                    do (,@fx ,a ,@args)
-                    finally (return ,aa))
-             `(loop for ,a of-type ,itr-type in ,aa
-                    collect (,@fx ,a ,@args) of-type ,res-type))))))
+         (declare #.*opt-settings* (list ,aa) ,@pairs)
+         ,(if inplace
+              `(loop for ,a of-type ,itr-type in ,aa
+                     do (,@fx ,a ,@args)
+                     finally (return ,aa))
+              #+sbcl `(loop for ,a of-type ,itr-type in ,aa
+			    collect (,@fx ,a ,@args) of-type ,res-type)
+	      #-sbcl `(loop for ,a of-type ,itr-type in ,aa
+			    collect (,@fx ,a ,@args)))))))
 
 
 (defmacro 3rep (&body body)

@@ -197,15 +197,24 @@ START, END:     bounding index designators of SEQUENCE.
 (defun floats-string-to-list (s end)
   (declare #.*opt-settings* (string s))
   (let ((*read-default-float-format* 'double-float))
-    (loop with start of-type fixnum = 0
-          with v of-type number = 0
-          for pos = (loop for i of-type fixnum from start below end
-                          for c of-type character across s
-                          unless (eql c #\space)
-                          do (return i))
-          while pos do (multiple-value-setq (v start)
-                         (read-from-string s nil nil :start pos))
-          while v collect (-maybe-float v) of-type double-float)))
+    #+sbcl (loop with start of-type fixnum = 0
+		 with v of-type number = 0
+		 for pos = (loop for i of-type fixnum from start below end
+				 for c of-type character across s
+				 unless (eql c #\space)
+				   do (return i))
+		 while pos do (multiple-value-setq (v start)
+				(read-from-string s nil nil :start pos))
+		 while v collect (-maybe-float v) of-type double-float)
+    #-sbcl (loop with start of-type fixnum = 0
+		 with v of-type number = 0
+		 for pos = (loop for i of-type fixnum from start below end
+				 for c of-type character across s
+				 unless (eql c #\space)
+				   do (return i))
+		 while pos do (multiple-value-setq (v start)
+				(read-from-string s nil nil :start pos))
+		 while v collect (-maybe-float v))))
 
 
 (defun do-lines-as-floats (fn fx &key (buffer-width 80))

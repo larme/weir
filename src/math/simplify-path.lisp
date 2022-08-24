@@ -39,7 +39,10 @@
 ; https://hydra.hull.ac.uk/resources/hull:8338
 (defun simplify (pts &key (lim 1d0))
   (declare #.*opt-settings* (vec-simple pts) (double-float lim))
-  (loop for i of-type pos-int across
-          (-simplify pts lim :left 0 :right (1- (length pts)))
-        collect (aref pts i) of-type vec:vec))
+  #+sbcl (loop for i of-type pos-int across
+				     (-simplify pts lim :left 0 :right (1- (length pts)))
+	       collect (aref pts i) of-type vec:vec)
+  #-sbcl (loop for i of-type pos-int across
+				     (-simplify pts lim :left 0 :right (1- (length pts)))
+	       collect (aref pts i)))
 
