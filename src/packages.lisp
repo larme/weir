@@ -374,6 +374,7 @@
     #:stipple
     #:sub
     #:sum
+    #:rexpt
     #:with-linspace)
   (:import-from #:weir-utils
     #:*opt-settings*

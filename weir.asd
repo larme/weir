@@ -22,6 +22,7 @@
                (:file "state")
                (:file "hset")
                (:file "math/math")
+	       (:file "math/my-patch")
                (:file "rnd/rnd")
                (:file "vec/base")
                (:file "vec/vec")
